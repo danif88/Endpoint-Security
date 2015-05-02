@@ -2,7 +2,20 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <comment/>
-<entry key="root.role">superUser</entry>
-<entry key="root.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
-<entry key="root.graphs"></entry>
+<entry key="vale.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
+<entry key="dani.role">superUser</entry>
+<entry key="vale1.role">user</entry>
+<entry key="gaby1.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
+<entry key="claudio.role">graphOwner</entry>
+<entry key="gaby.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
+<entry key="gaby3.role">graphOwner</entry>
+<entry key="dani.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
+<entry key="vale1.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
+<entry key="vale.role">Admin</entry>
+<entry key="graphOwnerUsers">;</entry>
+<entry key="gaby1.role">user</entry>
+<entry key="claudio.pass">202cb962ac59075b964b07152d234b70</entry>
+<entry key="gaby3.pass">81dc9bdb52d04dc20036dbd8313ed055</entry>
+<entry key="dani.graphs">http://example.org/ng1;http://example.org/ng2;http://example.org/ng3</entry>
+<entry key="gaby.role">user</entry>
 </properties>
