@@ -18,6 +18,8 @@ $ java -jar target/gs-rest-service-complete.jar
 http://localhost:8080/logIn?name=root&encrypted=81dc9bdb52d04dc20036dbd8313ed055
 ```
 The password is encrypted with md5
+root password 1234
+The users are specified in the users.xml file
 
 ## API Methods
 To see all the methos of the API you should see the Controller javadoc. 
