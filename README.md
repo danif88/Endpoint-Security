@@ -24,7 +24,7 @@ root password 1234.
 The users are specified in the users.xml file
 
 ## API Methods
-To see all the methos of the API you should see the Controller javadoc. 
+To see all the methos of the API you should see the Endpoint-Security/doc/endpoint/security/controllers/Controller.html. 
 
 
 
