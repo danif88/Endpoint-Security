@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment/>
+<entry key="FUSEKI_DATASET_NAME">ds</entry>
+<entry key="FUSEKI_SERVER_URL">http://127.0.0.1:3030</entry>
+<entry key="POLICIES_STORAGE_PATH">/Users/danielaahumada/Documents/ing/Tesis/Policies</entry>
+<entry key="BASE_URI">http://example/data/</entry>
+<entry key="CONTEXT_BASE_URI">http://example/base/</entry>
+</properties>

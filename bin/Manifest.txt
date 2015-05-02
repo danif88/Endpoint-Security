@@ -1,0 +1,2 @@
+Main-Class: SimpleEncryption
+Class-Path: commons-codec-1.7.jar
