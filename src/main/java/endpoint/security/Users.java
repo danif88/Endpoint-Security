@@ -57,6 +57,16 @@ public class Users {
                 prop.storeToXML(new FileOutputStream(filePath), "");
 	}
 
+	public static void addToUsers(String name) throws IOException{
+		String s = getConfig("Users");
+                if(s==null || s.compareTo("")==0)
+                        prop.setProperty("Users", name);
+                else{
+                        if(s.indexOf(";" +name)<0 && s.indexOf(name + ";")<0 && s.compareTo(name)!=0)
+                                prop.setProperty("Users", s + ";" +name);
+                }
+                prop.storeToXML(new FileOutputStream(filePath), "");
+	}
 	public static boolean removeConfigGraphs(String session, String graph) throws IOException {
 		String graphs = Sessions.getGraphs(session);
 		List<String> graphs_a = new ArrayList<String>(Arrays.asList(graphs.split(";")));
@@ -82,6 +92,19 @@ public class Users {
                 }
                 return new AppResponse(1,"",jsonG.toString());
         }
+	public static AppResponse getAllUsers(String session){
+                JSONObject jsonG = new JSONObject();
+                String[] users = Users.getConfig("Users").split(";");
+                for(int i=0; i<users.length; i++){
+                        try {
+                                JSONObject jsonU = new JSONObject();
+				jsonG.put(users[i], jsonU);
+                        } catch (JSONException e) {
+                                return new AppResponse(2,"Failed to load graphs","");
+                        }
+                }
+                return new AppResponse(1,"",jsonG.toString());
+        }
 	public static AppResponse deleteUser(String name1){
 		prop.remove(name1 + ".role");
 		prop.remove(name1 + ".pass");
@@ -97,26 +120,38 @@ public class Users {
 			return new AppResponse(2,"Couldn't delete user","");
 		}
 		String s = getConfig("graphOwnerUsers");
-		if(s==null)
+		List<String> users = new ArrayList<String>(Arrays.asList(s.split(";")));
+		users.remove(name1);
+		String users_s="";
+		for(String name : users)
+			users_s += name + ";";
+		prop.setProperty("graphOwnerUsers", users_s);
+		try {
+			prop.storeToXML(new FileOutputStream(filePath), "");
+		} catch (FileNotFoundException e) {
+			Logger.write("Invalid Session - Couldn't delete user" );
 			return new AppResponse(2,"Couldn't delete user","");
-		else{
-			List<String> users = new ArrayList<String>(Arrays.asList(s.split(";")));
-			users.remove(name1);
-			String users_s="";
-			for(String name : users)
-				users_s += name + ";";
-			prop.setProperty("graphOwnerUsers", users_s);
-			try {
-				prop.storeToXML(new FileOutputStream(filePath), "");
-			} catch (FileNotFoundException e) {
-				Logger.write("Invalid Session - Couldn't delete user" );
-				return new AppResponse(2,"Couldn't delete user","");
-			} catch (IOException e) {
-				Logger.write("Invalid Session - Couldn't delete user" );
-				return new AppResponse(2,"Couldn't delete user","");
-			}
-			return new AppResponse(1, "", "Successfull");
+		} catch (IOException e) {
+			Logger.write("Invalid Session - Couldn't delete user" );
+			return new AppResponse(2,"Couldn't delete user","");
 		}
 
+		s = getConfig("Users");
+		users = new ArrayList<String>(Arrays.asList(s.split(";")));
+		users.remove(name1);
+		users_s="";
+		for(String name : users)
+			users_s += name + ";";
+		prop.setProperty("Users", users_s);
+		try {
+			prop.storeToXML(new FileOutputStream(filePath), "");
+		} catch (FileNotFoundException e) {
+			Logger.write("Invalid Session - Couldn't delete user" );
+			return new AppResponse(2,"Couldn't delete user","");
+		} catch (IOException e) {
+			Logger.write("Invalid Session - Couldn't delete user" );
+			return new AppResponse(2,"Couldn't delete user","");
+		}
+		return new AppResponse(1, "", "Successfull");
 	}
 }

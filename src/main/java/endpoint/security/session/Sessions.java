@@ -71,7 +71,7 @@ public class Sessions {
 			return new AppResponse(2,"Log In Failed","");
 		}
 		//System.out.println("session existe:" + prop.containsValue(value));
-		return new AppResponse(1,"",session_id);
+		return new AppResponse(1,value,session_id);
 	}
 	
 	public static String MD5(String md5) {

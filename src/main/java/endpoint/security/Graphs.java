@@ -71,6 +71,8 @@ public class Graphs {
 	
 	public static AppResponse getGraphs(String session){
 		JSONObject jsonG = new JSONObject();
+		if(Sessions.getGraphs(session).compareTo("")==0)
+			return new AppResponse(2,"No Graphs","");
 		String[] graphs = Sessions.getGraphs(session).split(";");
 		for(int i=0; i<graphs.length; i++){
 			try {

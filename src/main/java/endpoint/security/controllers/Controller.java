@@ -502,6 +502,42 @@ public class Controller {
         }
     }
     
+    @RequestMapping("/getAllUsers")
+    public AppResponse getAllUsers(@RequestParam(value="session", required=true) String session,
+                HttpServletRequest request)
+                throws UnsupportedEncodingException {
+        System.out.println("GET ALL USERS->session:" + session);
+        Logger.write("GET ALL USERS->session:" + session);
+
+        AppResponse r = Sessions.checkSession(session,request);
+
+        System.out.println("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
+        Logger.write("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
+
+        if(r.getStatus()==1){
+                if(!User.checkIfSuperUser(r.getData())){
+                        AppResponse resp = new AppResponse(2,"You don'have privileges ","");
+
+                        System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+                        Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+
+                        return resp;
+                }
+                else{
+                        AppResponse resp = Users.getAllUsers(r.getData());
+
+                        System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+                        Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+
+                        return resp;
+                }
+        }else{
+                System.out.println("RESPONSE:" + r.getData() + " ERROR:" + r.getError());
+                        Logger.write("RESPONSE:" + r.getData() + " ERROR:" + r.getError());
+
+                return r;
+        }
+    }
     @RequestMapping("/update")
     public AppResponse update(@RequestParam(value="session", required=true) String session,
     		@RequestParam(value="query", required=true) String query,
@@ -517,8 +553,8 @@ public class Controller {
     	
     	if(r.getStatus()==1){
     		if(Graphs.checkUpdate(r.getData(), query)){
-    			GSPWrapper.doPOST(query);
-    			AppResponse resp = new AppResponse(1,"","OK");
+    			AppResponse resp = GSPWrapper.doPOST(query);
+    			//AppResponse resp = new AppResponse(1,"","OK");
     			
     			System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
     			Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
@@ -526,7 +562,7 @@ public class Controller {
     			return resp;
     		}
     		else{
-    			AppResponse resp = new AppResponse(1,"Fails Update","");
+    			AppResponse resp = new AppResponse(2,"Fails Update - You don't have privileges","");
     			
     			System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
     			Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
@@ -558,8 +594,16 @@ public class Controller {
     	
     	System.out.println("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
     	Logger.write("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
-    	
+	
     	if(r.getStatus()==1){
+		if(!User.checkIfSuperUser(r.getData()) && graph.compareTo("default")==0){
+			AppResponse resp = new AppResponse(2,"You don'have privileges to add upload in default graph","");
+
+                        System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+                        Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+
+                        return resp;
+		}
     		if(!User.checkIfGraphOwner(r.getData())){
     			AppResponse resp = new AppResponse(2,"You don'have privileges to add upload","");
     			
@@ -623,10 +667,10 @@ public class Controller {
 					return resp;
           	  }else{
           		  fileToUpload.delete();
-          		  AppResponse resp = new AppResponse(2,clientResp.getClientResponseStatus().toString(),"");
-          		  
-          		System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
-				Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+          		  String output = clientResp.getEntity(String.class); 
+          		  AppResponse resp = new AppResponse(2,output,"");
+          		System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + output);
+				Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + output);
 				
 				return resp;
           	  }

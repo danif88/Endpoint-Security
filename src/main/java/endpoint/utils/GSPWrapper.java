@@ -7,7 +7,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import endpoint.security.controllers.Application;
-
+import endpoint.security.response.AppResponse;
 /**
  * 
  * @author danielaahumada
@@ -36,7 +36,7 @@ public class GSPWrapper {
 		return output;
 	}
 	
-	public static void doPOST(String requestBody) throws Exception {
+	public static AppResponse doPOST(String requestBody) throws Exception {
 		String queryURL;
 		//String output = "";
 		queryURL = Config.fusekiUpdateURL;
@@ -51,11 +51,13 @@ public class GSPWrapper {
 			ClientResponse response = webResource.type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
 			
 			System.out.println(response.getStatus() + "  " + response.toString());
-			if (response.getStatus() == 201 && response.getStatus() == 204 ) {
-				System.out.println("Error doPost");
+			if (response.getStatus() != 200 ) {
+				String output = response.getEntity(String.class);
+				return new AppResponse(2,response.getStatus() + "  " + output,"");
 			}
+			return new AppResponse(1,"","OK");
 		  } catch (Exception e) {
-			  throw e;
+			  return new AppResponse(2,e.getMessage(),"");
 		  }
 	}
 	

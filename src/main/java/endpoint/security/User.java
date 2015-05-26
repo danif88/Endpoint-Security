@@ -21,6 +21,8 @@ public class User {
     	try {
 			Users.setConfig(name + ".pass", pass);
 			Users.setConfig(name + ".role", role);
+			Users.setConfig(name + ".graphs", role);
+			Users.addToUsers(name);
 		} catch (IOException e) {
 			return new AppResponse(2,e.getMessage(),"");
 		}
