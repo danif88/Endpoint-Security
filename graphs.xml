@@ -2,13 +2,4 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <comment/>
-<entry key="http://example.org/mqgraph__admin">mauricio;tortuga</entry>
-<entry key="http://example.org/books1__admin">camilo</entry>
-<entry key="default__admin">dani</entry>
-<entry key="http://example.org/a__admin">daniel;jose</entry>
-<entry key="http://www.migrafo.org/default__admin">claudio</entry>
-<entry key="http://example.com/books1__admin">camilo;camilo2</entry>
-<entry key="http://www.migrafo.org/g1__admin">claudio</entry>
-<entry key="http://example.org/ng3__admin">dani</entry>
-<entry key="http://example.org/ng1__admin">dani;camilo;tortuga;user22</entry>
 </properties>
