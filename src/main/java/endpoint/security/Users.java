@@ -79,6 +79,17 @@ public class Users {
 		return true;
 	}
 
+	public static boolean removeConfigGraphsPermited(String session, String graph) throws IOException {
+		String graphs = getConfig(Sessions.getUser(session) + "." + "graphs_permited");
+		List<String> graphs_a = new ArrayList<String>(Arrays.asList(graphs.split(";")));
+		graphs_a.remove(graph);
+		String graphs_s="";
+		for(String name : graphs_a)
+			graphs_s += name + ";";
+		prop.setProperty(Sessions.getUser(session) + "." + "graphs_permited", graphs_s);
+		prop.storeToXML(new FileOutputStream(filePath), "");
+		return true;
+	}
 	public static AppResponse getUsers(String session){
                 JSONObject jsonG = new JSONObject();
                 String[] users = Users.getConfig("graphOwnerUsers").split(";");
@@ -95,6 +106,19 @@ public class Users {
 	public static AppResponse getAllUsers(String session){
                 JSONObject jsonG = new JSONObject();
                 String[] users = Users.getConfig("Users").split(";");
+                for(int i=0; i<users.length; i++){
+                        try {
+                                JSONObject jsonU = new JSONObject();
+				jsonG.put(users[i], jsonU);
+                        } catch (JSONException e) {
+                                return new AppResponse(2,"Failed to load graphs","");
+                        }
+                }
+                return new AppResponse(1,"",jsonG.toString());
+        }
+	public static AppResponse getAllGraphsPermited(String session){
+                JSONObject jsonG = new JSONObject();
+                String[] users = Users.getConfig(Sessions.getUser(session) + "." + "graphs_permited").split(";");
                 for(int i=0; i<users.length; i++){
                         try {
                                 JSONObject jsonU = new JSONObject();

@@ -18,7 +18,10 @@ import org.json.JSONObject;
 
 import endpoint.security.response.AppResponse;
 import endpoint.security.session.Sessions;
+import endpoint.security.User;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
 /**
  * 
  * @author danielaahumada
@@ -109,14 +112,56 @@ public class Graphs {
 	            "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*" + 
 	            "(#([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
 		Matcher m= p.matcher(update);
+		
+		update=update.replaceAll("\t", "");
+		update=update.replaceAll("\r", "");
+		update=update.replaceAll("\n", "");
+		update=update.replaceAll(" ", "");
+		update=update.toLowerCase();
+		
 		boolean ans = true;
 		int i=0;
+		if(!User.checkIfSuperUser(session) && update.indexOf("graph") < 0){
+			return false;
+		}
+		System.out.println("UPDATE=" + update);
+		Hashtable prefixes = new Hashtable();
+		int posPrefix = update.indexOf("prefix");
+		while (posPrefix >= 0) {
+    			int pos = update.indexOf(":", posPrefix + 1);
+    			int pos2 = update.indexOf(">", posPrefix + 1);
+			System.out.println("pos=" + pos + " pos2=" + pos2 + " posPrefix=" + posPrefix);
+			prefixes.put(update.substring(posPrefix+6,pos),update.substring(pos+2,pos2));
+    			posPrefix = update.indexOf("prefix", posPrefix + 1);
+		}		
+		Enumeration e = prefixes.keys();
+		while (e.hasMoreElements()) {
+			String key = (String) e.nextElement();
+			String uri = (String) prefixes.get(key);
+			System.out.println("URI Prefix=" + uri + " key=" + key);
+			int nextPosition = update.indexOf("graph" + key + ":");
+			if(nextPosition > 0){
+				int startUri = update.indexOf(":", nextPosition);
+				int endUri = update.indexOf("{", nextPosition);
+				uri = uri + update.substring(startUri+1, endUri);
+				System.out.println("URI=" + uri);
+				u = getConfig(uri + "__admin");
+				if(u==null){
+					ans = ans && false;
+					continue;
+				}
+				users = new ArrayList<String>(Arrays.asList(u.split(";")));
+				if(users.contains(user)){
+					ans = ans && true;
+				}
+				else
+					ans = ans && false;
+			}
+		}
 		while (m.find()) {
 			++i;
 			String matched = m.group();
-			if(update.indexOf("GRAPH <" + matched + ">") < 0 && 
-					update.indexOf("Graph <" + matched + ">") < 0 &&
-					update.indexOf("graph <" + matched + ">") < 0)
+			if(update.indexOf("graph<" + matched + ">")<0) 
 				continue;
 			u = getConfig(matched + "__admin");
 			if(u==null){
@@ -130,8 +175,87 @@ public class Graphs {
 			else
 				ans = ans && false;
 		}
-		if(i==0)
+		if(i==0 && !User.checkIfSuperUser(session))
 			ans = ans && false;
 		return ans;
 	}
+	public static boolean checkUpdate2(String session, String update){
+		String user = Sessions.getUser(session);
+		String u;
+		List<String> users;
+		Pattern p = Pattern.compile(
+	            "\\b(((ht|f)tp(s?)\\:\\/\\/|~\\/|\\/)|www.)" + 
+	            "(\\w+:\\w+@)?(([-\\w]+\\.)+(com|org|net|gov" + 
+	            "|mil|biz|info|mobi|name|aero|jobs|museum" + 
+	            "|travel|[a-z]{2}))(:[\\d]{1,5})?" + 
+	            "(((\\/([-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?" + 
+	            "((\\?([-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?" + 
+	            "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)" + 
+	            "(&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?" + 
+	            "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*" + 
+	            "(#([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
+		Matcher m= p.matcher(update);
+		update=update.replaceAll("\t", "");
+		update=update.replaceAll("\n", "");
+		update=update.replaceAll(" ", "");
+		update=update.toLowerCase();
+		
+		boolean ans = true;
+		int i=0;
+		int posUsing = update.indexOf("using");
+		if(posUsing<0)
+			posUsing=update.length();
+		int posPrefix = update.indexOf("prefix");
+		//List<String> prefixes = new ArrayList<String>();
+		Hashtable prefixes = new Hashtable();
+		while (posPrefix >= 0) {
+    			posPrefix = update.indexOf("prefix", posPrefix + 1);
+    			int pos = update.indexOf(":", posPrefix + 1);
+    			int pos2 = update.indexOf(">", posPrefix + 1);
+			prefixes.put(update.substring(posPrefix+6,pos-1),update.substring(pos+2,pos2-1));
+		}		
+		Enumeration e = prefixes.keys();
+		while (e.hasMoreElements()) {
+			String key = (String) e.nextElement();
+			String uri = (String) prefixes.get(key);
+			System.out.println("URI Prefix=" + uri + " key=" + key);
+			int nextPosition = update.indexOf(key + ":",update.indexOf(key + ":<"));
+			if(nextPosition<posUsing){
+				u = getConfig(uri + "__admin");
+				if(u==null){
+					ans = ans && false;
+					continue;
+				}
+				users = new ArrayList<String>(Arrays.asList(u.split(";")));
+				if(users.contains(user)){
+					ans = ans && true;
+				}
+				else
+					ans = ans && false;
+			}
+		}
+		while (m.find()) {
+			++i;
+			String matched = m.group();
+			int posUri = update.indexOf(matched,update.indexOf(":"+matched));
+			System.out.println("URI matched=" + matched + " pos=" + posUri);
+			if(posUri<posUsing){
+				u = getConfig(matched + "__admin");
+				if(u==null){
+					ans = ans && false;
+					continue;
+				}
+				users = new ArrayList<String>(Arrays.asList(u.split(";")));
+				if(users.contains(user)){
+					ans = ans && true;
+				}
+				else
+					ans = ans && false;
+			}
+		}
+		if(i==0 && !User.checkIfSuperUser(session))
+			ans = ans && false;
+		return ans;
+	}
+
 }

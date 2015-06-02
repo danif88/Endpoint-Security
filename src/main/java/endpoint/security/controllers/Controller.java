@@ -515,7 +515,7 @@ public class Controller {
         Logger.write("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
 
         if(r.getStatus()==1){
-                if(!User.checkIfSuperUser(r.getData())){
+                if(!User.checkIfSuperUser(r.getData()) && !User.checkIfGraphOwner(r.getData())){
                         AppResponse resp = new AppResponse(2,"You don'have privileges ","");
 
                         System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
@@ -531,6 +531,42 @@ public class Controller {
 
                         return resp;
                 }
+        }else{
+                System.out.println("RESPONSE:" + r.getData() + " ERROR:" + r.getError());
+                        Logger.write("RESPONSE:" + r.getData() + " ERROR:" + r.getError());
+
+                return r;
+        }
+    }
+    @RequestMapping("/getGraphsPermited")
+    public AppResponse getGraphsPermited(@RequestParam(value="session", required=true) String session,
+                HttpServletRequest request)
+                throws UnsupportedEncodingException {
+        System.out.println("GET GRAPHS PERMITED->session:" + session);
+        Logger.write("GET GRAPHS PERMITED->session:" + session);
+
+        AppResponse r = Sessions.checkSession(session,request);
+
+        System.out.println("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
+        Logger.write("RESPONSE CheckSession:" + session + " ERROR:" + r.getError());
+
+        if(r.getStatus()==1){
+                /*if(!User.checkIfSuperUser(r.getData())){
+                        AppResponse resp = new AppResponse(2,"You don'have privileges ","");
+
+                        System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+                        Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+
+                        return resp;
+                }
+                else{*/
+                        AppResponse resp = Users.getAllGraphsPermited(r.getData());
+
+                        System.out.println("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+                        Logger.write("RESPONSE:" + resp.getData() + " ERROR:" + resp.getError());
+
+                        return resp;
+                //}
         }else{
                 System.out.println("RESPONSE:" + r.getData() + " ERROR:" + r.getError());
                         Logger.write("RESPONSE:" + r.getData() + " ERROR:" + r.getError());
@@ -658,6 +694,7 @@ public class Controller {
           		  else
           			Users.setConfig(user + ".graphs", graphs + ";" + graph);
 			  Graphs.setConfig(graph + "__admin", user);
+			  User.addGraphPermited(r.getData(), graph);
           		  fileToUpload.delete();
           		  AppResponse resp = new AppResponse(1,"","Success");
           		  

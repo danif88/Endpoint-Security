@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import endpoint.security.response.AppResponse;
 import endpoint.security.session.Sessions;
+import endpoint.security.Users;
 
 /**
  * 
@@ -22,6 +23,7 @@ public class User {
 			Users.setConfig(name + ".pass", pass);
 			Users.setConfig(name + ".role", role);
 			Users.setConfig(name + ".graphs", role);
+			Users.setConfig(name + ".graphs_permited", role);
 			Users.addToUsers(name);
 		} catch (IOException e) {
 			return new AppResponse(2,e.getMessage(),"");
@@ -89,6 +91,23 @@ public class User {
 		return new AppResponse(1,"","OK");
 	}
 
+	public static AppResponse addGraphPermited(String session, String graph) {
+		String user = Sessions.getConfig(session);
+		String graphs = Users.getConfig(user + ".graphs_permited");
+		if(graphs.indexOf(graph)>=0)
+			return new AppResponse(1,"","OK");
+		System.out.println("graphs" + graphs+"#");
+		try {
+			if(graphs==null || graphs.compareTo("")==0)
+					Users.setConfig(user + ".graphs_permited", graph);
+			else
+	    		Users.setConfig(user + ".graphs_permited", graphs + ";" + graph);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new AppResponse(1,"","OK");
+	}
 	public static AppResponse getUserRole(String session) {
 		String user = Sessions.getConfig(session);
 		return new AppResponse(1, "",Users.getConfig(user + ".role"));
@@ -96,8 +115,10 @@ public class User {
 
 	public static AppResponse deleteUserFromGraph(String session, String name, String graph) {
 		try {
-			if(Graphs.removeConfig(graph + "__admin", name))
+			if(Graphs.removeConfig(graph + "__admin", name)){
+				Users.removeConfigGraphsPermited(session, graph);				
 				return new AppResponse(1, "", "Succesfull");
+			}
 			else
 				return new AppResponse(2, "Fails to remove user from graph", "");
 		} catch (IOException e) {
@@ -110,6 +131,7 @@ public class User {
 		try {
 			if(Users.getConfig(name + ".pass") != null){
 				Graphs.setConfig(graph + "__admin", name);
+				addGraphPermited(session, graph);
 				return new AppResponse(1, "", "Succesfull");
 			}
 			else
